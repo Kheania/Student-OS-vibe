@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ TOASTS ============ -->
+<div id="toastStack" class="toast-stack" aria-live="polite"></div>
+
+<!-- ============ APP SHELL ============ -->
+<div class="shell" id="shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">
+        <span class="brand-mark">✳</span>
+        <span class="brand-name">Student<em>OS</em></span>
+      </div>
+      <button class="icon-btn sidebar-collapse" id="collapseBtn" title="Collapse sidebar">‹</button>
+    </div>
+
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-view="dashboard"><span class="nav-ic">◆</span><span class="nav-label">Dashboard</span></button>
+      <button class="nav-item" data-view="tasks"><span class="nav-ic">✓</span><span class="nav-label">Tasks</span></button>
+      <button class="nav-item" data-view="schedule"><span class="nav-ic">▤</span><span class="nav-label">Schedule</span></button>
+      <button class="nav-item" data-view="subjects"><span class="nav-ic">▥</span><span class="nav-label">Subjects</span></button>
+      <button class="nav-item" data-view="notes"><span class="nav-ic">✎</span><span class="nav-label">Notes</span></button>
+      <button class="nav-item" data-view="coding"><span class="nav-ic">◈</span><span class="nav-label">Coding</span></button>
+      <button class="nav-item" data-view="goals"><span class="nav-ic">◎</span><span class="nav-label">Goals</span></button>
+      <button class="nav-item" data-view="analytics"><span class="nav-ic">▦</span><span class="nav-label">Analytics</span></button>
+      <button class="nav-item" data-view="settings"><span class="nav-ic">⚙</span><span class="nav-label">Settings</span></button>
+    </nav>
+
+    <!-- Mini music player docked in sidebar -->
+    <div class="mini-player" id="miniPlayer">
+      <div class="mini-player-top">
+        <div class="mini-art" id="miniArt">🎵</div>
+        <div class="mini-meta">
+          <div class="mini-title" id="miniTitle">Nothing playing</div>
+          <div class="mini-artist" id="miniArtist">Pick a playlist</div>
+        </div>
+        <button class="icon-btn mini-expand" id="miniExpandBtn" title="Expand player">⤢</button>
+      </div>
+      <div class="mini-progress" id="miniProgressTrack">
+        <div class="mini-progress-fill" id="miniProgressFill"></div>
+      </div>
+      <div class="mini-controls">
+        <button class="icon-btn sm" id="miniPrevBtn" title="Previous">⏮</button>
+        <button class="icon-btn play" id="miniPlayBtn" title="Play/Pause">▶</button>
+        <button class="icon-btn sm" id="miniNextBtn" title="Next">⏭</button>
+        <div class="eq" id="miniEq"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+
+    <div class="sidebar-bottom">
+      <button class="focus-launch" id="focusLaunchBtn">
+        <span>◐</span> Focus Mode
+      </button>
+      <div class="profile">
+        <div class="avatar" id="profileAvatar">K</div>
+        <div class="profile-meta">
+          <div class="profile-name" id="profileName">Ken</div>
+          <div class="profile-streak">🔥 <span id="sidebarStreak">0</span> day streak</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MOBILE TOP BAR ============ -->
+  <header class="mobile-topbar">
+    <button class="icon-btn" id="mobileMenuBtn">☰</button>
+    <div class="mobile-brand">Student<em>OS</em></div>
+    <button class="icon-btn" id="mobileSearchBtn">⌕</button>
+  </header>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main" id="main">
+
+    <!-- Top bar (desktop) -->
+    <div class="topbar">
+      <button class="search-trigger" id="searchTriggerBtn">
+        <span>⌕</span> Search tasks, notes, subjects…
+        <span class="kbd">/</span>
+      </button>
+      <div class="topbar-right">
+        <div class="date-pill" id="dateTop"></div>
+      </div>
+    </div>
+
+    <!-- ============ VIEW: DASHBOARD ============ -->
+    <section class="view active" id="view-dashboard">
+      <div class="view-head">
+        <h1 id="greeting">Good afternoon, Ken 👋</h1>
+        <p class="quote">"Small progress every day becomes something big."</p>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-top"><span class="stat-label">Tasks completed</span><span class="stat-ic">✓</span></div>
+          <div class="stat-value" id="statTasksDone">0</div>
+          <div class="progress-bar"><div class="progress-fill" id="statTasksBar" style="width:0%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><span class="stat-label">Tasks remaining</span><span class="stat-ic">◔</span></div>
+          <div class="stat-value" id="statTasksLeft">0</div>
+          <div class="stat-sub" id="statTasksLeftSub">All clear</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><span class="stat-label">Study time today</span><span class="stat-ic">⏱</span></div>
+          <div class="stat-value" id="statStudyTime">0h 0m</div>
+          <div class="stat-sub">across all sessions</div>
+        </div>
+        <div class="stat-card accent">
+          <div class="stat-top"><span class="stat-label">Current streak</span><span class="stat-ic">🔥</span></div>
+          <div class="stat-value" id="statStreak">0</div>
+          <div class="stat-sub">days in a row</div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <!-- Today's tasks -->
+        <div class="card span-2">
+          <div class="card-head">
+            <h2>Today's Tasks</h2>
+            <button class="btn-icon-text" data-open-modal="taskModal">+ Add task</button>
+          </div>
+          <div class="task-list" id="dashTaskList"></div>
+        </div>
+
+        <!-- Deadlines -->
+        <div class="card">
+          <div class="card-head">
+            <h2>Upcoming Deadlines</h2>
+            <button class="link-btn" data-nav="tasks">View all</button>
+          </div>
+          <div class="deadline-list" id="dashDeadlines"></div>
+        </div>
+
+        <!-- Coding snapshot -->
+        <div class="card">
+          <div class="card-head">
+            <h2>Coding Streak</h2>
+            <button class="link-btn" data-nav="coding">Open hub</button>
+          </div>
+          <div class="coding-snapshot">
+            <div class="flame-count">🔥 <span id="dashCodingStreak">0</span> <small>days</small></div>
+            <div class="mini-goal" id="dashCodingGoal">Set today's coding goal</div>
+            <button class="btn-primary sm" id="startCodingBtn">Start Coding Session</button>
+          </div>
+        </div>
+
+        <!-- Weekly activity -->
+        <div class="card span-2">
+          <div class="card-head">
+            <h2>Weekly Activity</h2>
+            <span class="muted-label">minutes studied</span>
+          </div>
+          <div class="bar-chart" id="dashWeekChart"></div>
+        </div>
+
+        <!-- Pomodoro -->
+        <div class="card">
+          <div class="card-head">
+            <h2>Focus Timer</h2>
+          </div>
+          <div class="pomo-widget">
+            <div class="pomo-mode" id="pomoModeLabel">FOCUS SESSION</div>
+            <div class="pomo-time" id="pomoTime">25:00</div>
+            <div class="pomo-task" id="pomoTaskLabel">No task selected</div>
+            <div class="pomo-controls">
+              <button class="btn-primary sm" id="pomoStartBtn">Start</button>
+              <button class="btn-ghost sm" id="pomoPauseBtn">Pause</button>
+              <button class="btn-ghost sm" id="pomoResetBtn">Reset</button>
+            </div>
+            <div class="pomo-sessions">Sessions today: <strong id="pomoSessionsToday">0</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VIEW: TASKS ============ -->
+    <section class="view" id="view-tasks">
+      <div class="view-head row">
+        <div>
+          <h1>Tasks</h1>
+          <p class="sub">Everything on your plate, in one place.</p>
+        </div>
+        <button class="btn-primary" data-open-modal="taskModal">+ Add task</button>
+      </div>
+
+      <div class="filter-row">
+        <div class="chip-group" id="taskFilterChips">
+          <button class="chip active" data-filter="all">All</button>
+          <button class="chip" data-filter="active">Active</button>
+          <button class="chip" data-filter="completed">Completed</button>
+          <button class="chip" data-filter="high">High priority</button>
+        </div>
+        <select class="select" id="taskSortSelect">
+          <option value="priority">Sort by priority</option>
+          <option value="due">Sort by due time</option>
+          <option value="created">Sort by newest</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <div class="task-list" id="fullTaskList"></div>
+      </div>
+    </section>
+
+    <!-- ============ VIEW: SCHEDULE ============ -->
+    <section class="view" id="view-schedule">
+      <div class="view-head row">
+        <div>
+          <h1>Schedule</h1>
+          <p class="sub">Your weekly class rhythm.</p>
+        </div>
+        <button class="btn-primary" data-open-modal="scheduleModal">+ Add class</button>
+      </div>
+      <div class="schedule-grid" id="scheduleGrid"></div>
+    </section>
+
+    <!-- ============ VIEW: SUBJECTS ============ -->
+    <section class="view" id="view-subjects">
+      <div class="view-head row">
+        <div>
+          <h1>Subjects</h1>
+          <p class="sub">Track progress across every course.</p>
+        </div>
+        <button class="btn-primary" data-open-modal="subjectModal">+ Add subject</button>
+      </div>
+      <div class="subject-grid" id="subjectGrid"></div>
+    </section>
+
+    <!-- ============ VIEW: NOTES ============ -->
+    <section class="view" id="view-notes">
+      <div class="view-head row">
+        <div>
+          <h1>Notes</h1>
+          <p class="sub">Capture ideas before they slip away.</p>
+        </div>
+        <button class="btn-primary" data-open-modal="noteModal">+ New note</button>
+      </div>
+      <div class="filter-row">
+        <div class="chip-group" id="noteFilterChips">
+          <button class="chip active" data-filter="all">All</button>
+          <button class="chip" data-filter="School">School</button>
+          <button class="chip" data-filter="Coding">Coding</button>
+          <button class="chip" data-filter="Ideas">Ideas</button>
+          <button class="chip" data-filter="Personal">Personal</button>
+        </div>
+        <input class="input search-input" id="noteSearchInput" placeholder="Search notes…" />
+      </div>
+      <div class="notes-grid" id="notesGrid"></div>
+    </section>
+
+    <!-- ============ VIEW: CODING ============ -->
+    <section class="view" id="view-coding">
+      <div class="view-head">
+        <h1>Coding Hub</h1>
+        <p class="sub">Where the streak lives.</p>
+      </div>
+
+      <div class="dash-grid">
+        <div class="card">
+          <div class="card-head"><h2>Coding Streak</h2></div>
+          <div class="coding-snapshot">
+            <div class="flame-count">🔥 <span id="codingStreakBig">0</span> <small>days</small></div>
+            <div class="stat-sub">Longest: <strong id="codingStreakLongest">0</strong> days</div>
+          </div>
+        </div>
+
+        <div class="card span-2">
+          <div class="card-head">
+            <h2>Weekly Coding Activity</h2>
+            <span class="muted-label">minutes</span>
+          </div>
+          <div class="bar-chart" id="codingWeekChart"></div>
+        </div>
+
+        <div class="card span-2">
+          <div class="card-head">
+            <h2>Current Learning</h2>
+            <button class="btn-icon-text" data-open-modal="learningModal">+ Add track</button>
+          </div>
+          <div class="skill-list" id="skillList"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2>Today's Coding Goal</h2></div>
+          <div class="goal-today">
+            <p id="codingGoalText">Complete 2 JavaScript exercises.</p>
+            <button class="btn-ghost sm" id="editCodingGoalBtn">Edit goal</button>
+            <button class="btn-primary sm" id="startCodingBtn2">Start Coding Session</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VIEW: GOALS ============ -->
+    <section class="view" id="view-goals">
+      <div class="view-head row">
+        <div>
+          <h1>Goals</h1>
+          <p class="sub">The long game.</p>
+        </div>
+        <button class="btn-primary" data-open-modal="goalModal">+ Add goal</button>
+      </div>
+      <div class="goal-grid" id="goalGrid"></div>
+    </section>
+
+    <!-- ============ VIEW: ANALYTICS ============ -->
+    <section class="view" id="view-analytics">
+      <div class="view-head">
+        <h1>Analytics</h1>
+        <p class="sub">Your actual numbers — no filler.</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-top"><span class="stat-label">Total study hours</span></div><div class="stat-value" id="anaStudyHours">0h</div></div>
+        <div class="stat-card"><div class="stat-top"><span class="stat-label">Coding hours</span></div><div class="stat-value" id="anaCodingHours">0h</div></div>
+        <div class="stat-card"><div class="stat-top"><span class="stat-label">Completed tasks</span></div><div class="stat-value" id="anaTasksDone">0</div></div>
+        <div class="stat-card"><div class="stat-top"><span class="stat-label">Pomodoro sessions</span></div><div class="stat-value" id="anaPomos">0</div></div>
+        <div class="stat-card accent"><div class="stat-top"><span class="stat-label">Current streak</span></div><div class="stat-value" id="anaStreak">0</div></div>
+        <div class="stat-card"><div class="stat-top"><span class="stat-label">Longest streak</span></div><div class="stat-value" id="anaLongest">0</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Weekly Productivity</h2><span class="muted-label">tasks completed per day</span></div>
+        <div class="bar-chart" id="anaWeekChart"></div>
+      </div>
+    </section>
+
+    <!-- ============ VIEW: SETTINGS ============ -->
+    <section class="view" id="view-settings">
+      <div class="view-head">
+        <h1>Settings</h1>
+        <p class="sub">Make it yours.</p>
+      </div>
+      <div class="card settings-card">
+        <div class="settings-row">
+          <div><div class="settings-label">Theme</div><div class="settings-desc">Switch between dark and light mode.</div></div>
+          <button class="toggle" id="themeToggle"><span class="toggle-knob"></span></button>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-label">Display name</div><div class="settings-desc">Shown in the greeting and profile.</div></div>
+          <input class="input" id="settingsUsername" style="max-width:220px" />
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-label">Start of week</div><div class="settings-desc">Which day your schedule starts on.</div></div>
+          <select class="select" id="settingsStartOfWeek"><option value="Monday">Monday</option><option value="Sunday">Sunday</option></select>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-label">Notifications</div><div class="settings-desc">Toast alerts for timers and deadlines.</div></div>
+          <button class="toggle" id="notifToggle"><span class="toggle-knob"></span></button>
+        </div>
+        <div class="settings-row danger-row">
+          <div><div class="settings-label">Reset all data</div><div class="settings-desc">Erases everything stored in this browser. Cannot be undone.</div></div>
+          <button class="btn-danger" id="resetDataBtn">Reset data</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ SEARCH OVERLAY ============ -->
+<div class="overlay" id="searchOverlay">
+  <div class="search-panel">
+    <input class="search-panel-input" id="searchPanelInput" placeholder="Search tasks, notes, subjects, goals…" autocomplete="off" />
+    <div class="search-results" id="searchResults"></div>
+    <button class="overlay-close" id="closeSearchBtn">Esc to close</button>
+  </div>
+</div>
+
+<!-- ============ FOCUS MODE OVERLAY ============ -->
+<div class="focus-overlay" id="focusOverlay">
+  <button class="icon-btn focus-exit" id="focusExitBtn">✕ Exit Focus Mode</button>
+  <div class="focus-content">
+    <div class="focus-label">FOCUS MODE</div>
+    <div class="focus-task" id="focusTaskLabel">No task selected</div>
+    <div class="focus-track" id="focusTrackLabel">🎵 Nothing playing</div>
+    <div class="focus-time" id="focusTime">25:00</div>
+    <div class="focus-controls">
+      <button class="btn-primary" id="focusPauseBtn">Pause</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EXPANDED MUSIC PANEL ============ -->
+<div class="music-panel-overlay" id="musicPanelOverlay">
+  <div class="music-panel">
+    <button class="icon-btn music-panel-close" id="closeMusicPanelBtn">✕</button>
+    <div class="music-panel-left">
+      <div class="mp-art-wrap">
+        <div class="mp-art" id="mpArt">🎵</div>
+        <div class="mp-eq" id="mpEq"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="mp-title" id="mpTitle">Nothing playing</div>
+      <div class="mp-artist" id="mpArtist">Choose a playlist to begin</div>
+
+      <div class="mp-progress-row">
+        <span id="mpCurrentTime">0:00</span>
+        <div class="mp-progress-track" id="mpProgressTrack"><div class="mp-progress-fill" id="mpProgressFill"></div></div>
+        <span id="mpDuration">0:00</span>
+      </div>
+
+      <div class="mp-main-controls">
+        <button class="icon-btn" id="mpShuffleBtn" title="Shuffle">⤨</button>
+        <button class="icon-btn" id="mpPrevBtn" title="Previous">⏮</button>
+        <button class="icon-btn play lg" id="mpPlayBtn" title="Play/Pause">▶</button>
+        <button class="icon-btn" id="mpNextBtn" title="Next">⏭</button>
+        <button class="icon-btn" id="mpRepeatBtn" title="Repeat">↻</button>
+      </div>
+
+      <div class="mp-volume-row">
+        <span>🔊</span>
+        <input type="range" min="0" max="100" value="70" id="mpVolume" class="volume-slider" />
+      </div>
+
+      <label class="upload-btn">
+        + Add Your Music
+        <input type="file" id="audioUploadInput" accept="audio/*" multiple hidden />
+      </label>
+    </div>
+
+    <div class="music-panel-right">
+      <div class="mp-playlists-head">Playlists</div>
+      <div class="mp-playlists" id="mpPlaylists"></div>
+      <div class="mp-playlists-head">Up next</div>
+      <div class="mp-queue" id="mpQueue"></div>
+    </div>
+  </div>
+</div>
+
+<audio id="audioEl" preload="metadata"></audio>
+
+<!-- ============ MODALS ============ -->
+<div class="modal-backdrop" id="modalBackdrop"></div>
+
+<div class="modal" id="taskModal">
+  <div class="modal-head"><h3>New task</h3><button class="icon-btn" data-close-modal>✕</button></div>
+  <form id="taskForm">
+    <label class="field"><span>Title</span><input class="input" id="taskTitleInput" required placeholder="e.g. Finish JavaScript lesson" /></label>
+    <div class="field-row">
+      <label class="field"><span>Subject</span><input class="input" id="taskSubjectInput" placeholder="e.g. Web Dev" /></label>
+      <label class="field"><span>Priority</span>
+        <select class="select" id="taskPriorityInput"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select>
+      </label>
+    </div>
+    <label class="field"><span>Due time</span><input class="input" type="time" id="taskDueInput" /></label>
+    <button class="btn-primary full" type="submit">Add task</button>
+  </form>
+</div>
+
+<div class="modal" id="scheduleModal">
+  <div class="modal-head"><h3>New class</h3><button class="icon-btn" data-close-modal>✕</button></div>
+  <form id="scheduleForm">
+    <label class="field"><span>Class name</span><input class="input" id="schedClassInput" required placeholder="e.g. Mathematics" /></label>
+    <div class="field-row">
+      <label class="field"><span>Day</span>
+        <select class="select" id="schedDayInput">
+          <option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+        </select>
+      </label>
+      <label class="field"><span>Time</span><input class="input" type="time" id="schedTimeInput" required /></label>
+    </div>
+    <button class="btn-primary full" type="submit">Add class</button>
+  </form>
+</div>
+
+<div class="modal" id="subjectModal">
+  <div class="modal-head"><h3>New subject</h3><button class="icon-btn" data-close-modal>✕</button></div>
+  <form id="subjectForm">
+    <label class="field"><span>Subject name</span><input class="input" id="subjNameInput" required placeholder="e.g. Web Development" /></label>
+    <label class="field"><span>Teacher</span><input class="input" id="subjTeacherInput" placeholder="e.g. Ms. Alvarez" /></label>
+    <button class="btn-primary full" type="submit">Add subject</button>
+  </form>
+</div>
+
+<div class="modal" id="noteModal">
+  <div class="modal-head"><h3>New note</h3><button class="icon-btn" data-close-modal>✕</button></div>
+  <form id="noteForm">
+    <label class="field"><span>Title</span><input class="input" id="noteTitleInput" required placeholder="Note title" /></label>
+    <label class="field"><span>Category</span>
+      <select class="select" id="noteCategoryInput"><option>School</option><option>Coding</option><option>Ideas</option><option>Personal</option></select>
+    </label>
+    <label class="field"><span>Content</span><textarea class="input textarea" id="noteContentInput" rows="5" placeholder="Write it down…"></textarea></label>
+    <button class="btn-primary full" type="submit">Save note</button>
+  </form>
+</div>
+
+<div class="modal" id="goalModal">
+  <div class="modal-head"><h3>New goal</h3><button class="icon-btn" data-close-modal>✕</button></div>
+  <form id="goalForm">
+    <label class="field"><span>Goal</span><input class="input" id="goalTitleInput" required placeholder="e.g. Master JavaScript" /></label>
+    <label class="field"><span>Starting progress</span><input class="input" type="range" min="0" max="100" value="0" id="goalProgressInput" /></label>
+    <button class="btn-primary full" type="submit">Add goal</button>
+  </form>
+</div>
+
+<div class="modal" id="learningModal">
+  <div class="modal-head"><h3>New learning track</h3><button class="icon-btn" data-close-modal>✕</button></div>
+  <form id="learningForm">
+    <label class="field"><span>Skill / language</span><input class="input" id="learningNameInput" required placeholder="e.g. Python" /></label>
+    <label class="field"><span>Progress</span><input class="input" type="range" min="0" max="100" value="10" id="learningProgressInput" /></label>
+    <button class="btn-primary full" type="submit">Add track</button>
+  </form>
+</div>
+
+<div class="modal" id="confirmModal">
+  <div class="modal-head"><h3 id="confirmTitle">Are you sure?</h3><button class="icon-btn" data-close-modal>✕</button></div>
+  <p class="confirm-text" id="confirmText">This cannot be undone.</p>
+  <div class="field-row">
+    <button class="btn-ghost full" data-close-modal>Cancel</button>
+    <button class="btn-danger full" id="confirmActionBtn">Confirm</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
