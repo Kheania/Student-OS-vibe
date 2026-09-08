@@ -1,2 +1,2 @@
-# Student-OS
+# Student-OS-vibe
 under porgress
