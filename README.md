@@ -1,1 +1,1 @@
-# Student-OS-vibe
+# Student-OS
